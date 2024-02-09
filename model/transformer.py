@@ -4,6 +4,7 @@
 
 
 # imports
+import math
 import jax.numpy as jnp
 import jax
 import jax.numpy as jnp
@@ -15,15 +16,16 @@ from flax.training import train_state, checkpoints
 # attention
 
 # encodings
-from encoding_routines import PositionalEncoding, TransformerEncoder
+from .encoder_routines import PositionalEncoding, TransformerEncoder
+
 
 class TransformerPredictor(nn.Module):
-    model_dim : int                   # Hidden dimensionality to use inside the Transformer
-    num_classes : int                 # Number of classes to predict per sequence element
-    num_heads : int                   # Number of heads to use in the Multi-Head Attention blocks
-    num_layers : int                  # Number of encoder blocks to use
-    dropout_prob : float = 0.0        # Dropout to apply inside the model
-    input_dropout_prob : float = 0.0  # Dropout to apply on the input features
+    model_dim: int  # Hidden dimensionality to use inside the Transformer
+    num_classes: int  # Number of classes to predict per sequence element
+    num_heads: int  # Number of heads to use in the Multi-Head Attention blocks
+    num_layers: int  # Number of encoder blocks to use
+    dropout_prob: float = 0.0  # Dropout to apply inside the model
+    input_dropout_prob: float = 0.0  # Dropout to apply on the input features
 
     def setup(self):
         # Input dim -> Model dim
@@ -32,18 +34,20 @@ class TransformerPredictor(nn.Module):
         # Positional encoding for sequences
         self.positional_encoding = PositionalEncoding(self.model_dim)
         # Transformer
-        self.transformer = TransformerEncoder(num_layers=self.num_layers,
-                                              input_dim=self.model_dim,
-                                              dim_feedforward=2*self.model_dim,
-                                              num_heads=self.num_heads,
-                                              dropout_prob=self.dropout_prob)
+        self.transformer = TransformerEncoder(
+            num_layers=self.num_layers,
+            input_dim=self.model_dim,
+            dim_feedforward=2 * self.model_dim,
+            num_heads=self.num_heads,
+            dropout_prob=self.dropout_prob,
+        )
         # Output classifier per sequence lement
         self.output_net = [
             nn.Dense(self.model_dim),
             nn.LayerNorm(),
             nn.relu,
             nn.Dropout(self.dropout_prob),
-            nn.Dense(self.num_classes)
+            nn.Dense(self.num_classes),
         ]
 
     def __call__(self, x, mask=None, add_positional_encoding=True, train=True):
@@ -64,7 +68,9 @@ class TransformerPredictor(nn.Module):
             x = l(x) if not isinstance(l, nn.Dropout) else l(x, deterministic=not train)
         return x
 
-    def get_attention_maps(self, x, mask=None, add_positional_encoding=True, train=True):
+    def get_attention_maps(
+        self, x, mask=None, add_positional_encoding=True, train=True
+    ):
         """
         Function for extracting the attention matrices of the whole Transformer for a single batch.
         Input arguments same as the forward pass.
