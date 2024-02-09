@@ -3,7 +3,8 @@
 # ---------
 
 # imports
-import jax.numpy as jnp
+import numpy as np
+import math
 import jax
 import jax.numpy as jnp
 from jax import random
@@ -11,7 +12,7 @@ import flax
 from flax import linen as nn
 
 # attention imports
-from attention_routines import MultiheadAttention
+from .attention_routines import MultiheadAttention
 
 # main encoder block
 class EncoderBlock(nn.Module):
