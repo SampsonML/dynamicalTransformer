@@ -2,7 +2,7 @@
 # The attention mechanisms used in the model
 # -------
 
-# imports
+
 import math
 import numpy as np
 import jax
