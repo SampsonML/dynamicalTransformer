@@ -2,8 +2,6 @@
 # The transformer architecture
 # -------
 
-
-# imports
 import math
 import jax.numpy as jnp
 import jax
@@ -12,13 +10,10 @@ from jax import random
 import flax
 from flax import linen as nn
 from flax.training import train_state, checkpoints
-
-# attention
-
 # encodings
 from .encoder_routines import PositionalEncoding, TransformerEncoder
 
-
+# Transformer model class
 class TransformerPredictor(nn.Module):
     model_dim: int  # Hidden dimensionality to use inside the Transformer
     num_classes: int  # Number of classes to predict per sequence element
